@@ -1,0 +1,13 @@
+# OS & Environment
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Intermediate crop/debug artifacts
+*crop*.png
+*inspect*.png
+*user_circle*.png
+*debug*.png
+*step*.png

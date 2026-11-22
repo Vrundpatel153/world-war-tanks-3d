@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="en" data-ui-theme="light">
+
+<head>
+  <script>
+    (function () {
+      window.__errors = [];
+      window.addEventListener('error', function (e) {
+        console.error('[CAPTURE-ERROR]', e.message, e.filename, e.lineno, e.error);
+        window.__errors.push({ type: 'error', message: e.message, filename: e.filename, lineno: e.lineno, stack: e.error ? e.error.stack : null });
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        console.error('[CAPTURE-REJECTION]', e.reason);
+        window.__errors.push({ type: 'rejection', reason: String(e.reason), stack: e.reason ? (e.reason.stack || e.reason.message) : null });
+      });
+      const origFetch = window.fetch;
+      window.fetch = async function (...args) {
+        const res = await origFetch.apply(this, args);
+        const origJson = res.json.bind(res);
+        res.json = async function () {
+          try {
+            return await origJson();
+          } catch (err) {
+            console.error('[FETCH-JSON-FAIL]', args[0], err);
+            window.__failedFetch = { url: args[0], status: res.status, err: err.message };
+            throw err;
+          }
+        };
+        return res;
+      };
+      const origParse = JSON.parse;
+      JSON.parse = function (text, reviver) {
+        try {
+          return origParse.call(this, text, reviver);
+        } catch (err) {
+          console.error('[JSON-PARSE-FAIL]', text ? text.substring(0, 100) : text, err);
+          window.__failedJsonParse = { text: text ? text.substring(0, 200) : text, err: err.message };
+          throw err;
+        }
+      };
+    })();
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>World War Tanks: 3D Armored Warfare</title>
+  <link rel="canonical" href="https://longhoang-lyo.com/" />
+  <link rel="alternate" hreflang="x-default" href="https://longhoang-lyo.com/" />
+  <link rel="alternate" hreflang="en" href="https://longhoang-lyo.com/" />
+  <meta name="description"
+    content="World War Tanks 3D is an immersive armored warfare combat simulator featuring realistic track physics, 360-degree turret aiming, and open-world tactical exploration." />
+  <meta name="author" content="WW Tanks Team" />
+  <meta name="keywords"
+    content="Tank Game, World War Tanks, Armored Warfare, Three.js, WebGL, 3D Game, Tank Simulator" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="google-site-verification" content="google7dbbbe643b465dba" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#ffffff" />
+
+  <!-- OpenGraph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://longhoang-lyo.com/" />
+  <meta property="og:title" content="World War Tanks: 3D Armored Warfare" />
+  <meta property="og:description" content="Immersive 3D armored combat simulator with realistic physics." />
+  <meta property="og:image" content="https://longhoang-lyo.com/assets/meta/og-preview.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="World War Tanks 3D Combat Simulator Preview" />
+  <meta property="og:site_name" content="World War Tanks 3D" />
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@wwtanks_game" />
+  <meta name="twitter:creator" content="@wwtanks_game" />
+  <meta name="twitter:title" content="World War Tanks: 3D Armored Warfare" />
+  <meta name="twitter:description" content="Immersive 3D armored combat simulator with realistic physics." />
+  <meta name="twitter:image" content="https://longhoang-lyo.com/assets/meta/og-preview.png" />
+
+  <!-- Favicon & Manifest Suite -->
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/svg+xml" href="/assets/elements/app-icon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/elements/icon-192.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="preload" as="image" href="/assets/elements/hud/title-intro.svg" fetchpriority="high" />
+
+  <!-- Schema.org JSON-LD Structured Data -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "World War Tanks 3D: Armored Warfare",
+      "description": "Immersive 3D armored combat simulator with realistic track physics, independent turret traversal, and open-world tactical gameplay.",
+      "genre": ["Action", "Simulation", "Vehicle Combat"],
+      "gamePlatform": ["Web Browser", "PC"]
+    }
+    </script>
+
+  <style>
+    @font-face {
+      font-family: "Crocante";
+      src:
+        url("/assets/fonts/Crocante-Medium.woff2") format("woff2"),
+        url("/assets/fonts/Crocante-Medium.woff") format("woff");
+      font-weight: 400 900;
+      font-style: normal;
+      font-display: swap;
+      ascent-override: 115%;
+      descent-override: 23%;
+      line-gap-override: 0%;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: clamp(62.5%, 0.3125vw + 34.375%, 95%);
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden !important;
+      position: fixed;
+      inset: 0;
+      touch-action: none;
+      -webkit-overflow-scrolling: touch;
+      background-color: #ffffff;
+    }
+
+    #webgl {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    .sr-only,
+    .visually-hidden,
+    .u-visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      clip-path: inset(50%) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    .fonts-loader {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .startup-intro {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      pointer-events: none;
+      background-color: transparent;
+    }
+
+    .startup-intro__title {
+      position: absolute;
+      bottom: 3rem;
+      left: 3rem;
+      width: clamp(48rem, 36vw, 60rem);
+      aspect-ratio: 569 / 213;
+      background: url("/assets/elements/hud/title-intro.svg") no-repeat left bottom / contain;
+      margin: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 1;
+    }
+
+    @media (orientation: portrait) {
+      .startup-intro__title {
+        position: absolute;
+        top: max(2rem, var(--layout-safe-top, 2rem));
+        bottom: auto;
+        left: max(2rem, var(--layout-safe-left, 2rem));
+        width: min(calc(100vw - 4rem), 44rem);
+      }
+    }
+
+    .startup-intro__stage--loading {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 2;
+      background-color: #ffffff;
+      pointer-events: auto;
+    }
+
+    .startup-intro__loader-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 1.6rem;
+      width: min(31.5rem, calc(100vw - 4rem));
+      box-sizing: border-box;
+    }
+
+    .startup-intro__label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.2rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .startup-intro__label {
+      margin: 0;
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: "Crocante", display, sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      text-transform: uppercase;
+      color: #11121a;
+    }
+
+    .startup-intro__spinner {
+      position: relative;
+      width: 3.5rem;
+      height: 2.6rem;
+      flex: 0 0 auto;
+    }
+
+    .startup-intro__spinner-icon {
+      position: absolute;
+      width: 2rem;
+      height: 2rem;
+      object-fit: contain;
+    }
+
+    .startup-intro__spinner-icon--left {
+      top: 0;
+      left: 0;
+      transform-origin: 50% 50%;
+      animation: startup-intro-spin-left 6s linear infinite;
+    }
+
+    .startup-intro__spinner-icon--right {
+      right: 0;
+      bottom: 0;
+      transform-origin: 50% 50%;
+      animation: startup-intro-spin-right 6s linear infinite;
+    }
+
+    @keyframes startup-intro-spin-left {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(-360deg);
+      }
+    }
+
+    @keyframes startup-intro-spin-right {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .startup-intro__progress {
+      position: relative;
+      width: 100%;
+      height: 2.8rem;
+      box-sizing: border-box;
+    }
+
+    .startup-intro__progress-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .startup-intro__progress-svg use[id^="bar_"] {
+      display: none;
+    }
+
+    @media (max-width: 48rem) {
+      .startup-intro__loader-shell {
+        width: min(30rem, calc(100vw - 4rem));
+        gap: 1.2rem;
+      }
+
+      .startup-intro__label {
+        font-size: 1.6rem;
+      }
+    }
+
+    /* FPS Turret Sniper Scope Styling */
+    body.fps-mode-active #aim-circle {
+      width: 48px !important;
+      height: 48px !important;
+      transition: width 0.15s ease, height 0.15s ease;
+    }
+
+    body.fps-mode-active #aim-circle .aim-dot {
+      background: #ff3344 !important;
+      box-shadow: 0 0 8px rgba(255, 51, 68, 0.95) !important;
+      width: 5px !important;
+      height: 5px !important;
+    }
+
+    body.fps-mode-active #aim-circle .aim-part {
+      background: rgba(0, 255, 170, 0.95) !important;
+      box-shadow: 0 0 5px rgba(0, 255, 170, 0.8) !important;
+    }
+
+    body.fps-mode-active #aim-circle .aim-top {
+      height: 14px !important;
+    }
+
+    body.fps-mode-active #aim-circle .aim-bottom {
+      height: 14px !important;
+    }
+
+    body.fps-mode-active #aim-circle .aim-left {
+      width: 14px !important;
+    }
+
+    body.fps-mode-active #aim-circle .aim-right {
+      width: 14px !important;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/Crocante-Medium.woff2" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet"
+    media="print" onload="this.media='all'" />
+  <noscript>
+    <div
+      style="padding: 2rem; color: #ffffff; background: #0c1118; font-family: sans-serif; max-width: 800px; margin: 0 auto;">
+      <h1>World War Tanks: 3D Armored Warfare</h1>
+      <p>A WebGL-enabled browser is required to play World War Tanks 3D.</p>
+      <h2>Combat Controls</h2>
+      <ul>
+        <li><strong>W / S:</strong> Hull Treads Forward / Reverse</li>
+        <li><strong>A / D:</strong> Neutral Pivot Steering Left / Right</li>
+        <li><strong>Mouse:</strong> Turret Traverse & Camera Orbit</li>
+        <li><strong>Space / Click:</strong> Fire Main Cannon</li>
+        <li><strong>Shift:</strong> Boost Overdrive</li>
+      </ul>
+    </div>
+  </noscript>
+  <!-- Cloudflare Web Analytics -->
+  <script>
+    const host = window.location.hostname
+    const isLocal =
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host === "[::1]" ||
+      host.endsWith(".local") ||
+      /^10\.\d+\.\d+\.\d+$/.test(host) ||
+      /^192\.168\.\d+\.\d+$/.test(host) ||
+      /^172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+$/.test(host)
+    const isPreview =
+      host.endsWith(".pages.dev") && host !== "long-hoang-portfolio.pages.dev"
+
+    if (!isLocal && !isPreview) {
+      const s = document.createElement("script")
+      s.defer = true
+      s.src = "https://static.cloudflareinsights.com/beacon.min.js"
+      s.setAttribute(
+        "data-cf-beacon",
+        '{"token": "ac46163c5b574a99a1c7b91dee848b37", "spa": true}',
+      )
+      document.head.appendChild(s)
+    }
+  </script>
+  <!-- End Cloudflare Web Analytics -->
+  <script type="module" crossorigin src="/assets/vYUQZzfX.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/C0xwqhbh.js">
+  <link rel="modulepreload" crossorigin href="/assets/DrDnj3Lb.js">
+  <link rel="modulepreload" crossorigin href="/assets/BW6YWG0R.js">
+  <link rel="modulepreload" crossorigin href="/assets/Co_82n2H.js">
+  <link rel="modulepreload" crossorigin href="/assets/t1WzwXnd.js">
+  <link rel="modulepreload" crossorigin href="/assets/D9JAKPuk.js">
+  <link rel="modulepreload" crossorigin href="/assets/CozVMRND.js">
+  <link rel="modulepreload" crossorigin href="/assets/DADMk73e.js">
+  <link rel="stylesheet" crossorigin href="/assets/BcJjgNcx.css">
+
+  <style id="tank-game-hud-style">
+    /* Hide portfolio banners and promotional artifacts */
+    [aria-label*="Skip gameplay"],
+    [aria-label*="Open About Me"],
+    [aria-label*="preview my projects"] {
+      display: none !important;
+    }
+
+    /* World War Tank Combat HUD */
+    #tank-hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+      font-family: "Barlow", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #ffffff;
+      user-select: none;
+    }
+
+    /* World War Tanks Precision Combat Crosshair */
+    #aim-circle {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      width: 32px !important;
+      height: 32px !important;
+      pointer-events: none !important;
+      display: block !important;
+      z-index: 99999 !important;
+      opacity: 0.92 !important;
+      transition: opacity 0.2s ease, width 0.15s ease, height 0.15s ease;
+    }
+
+    body.aim-mode-active #aim-circle {
+      opacity: 1.0 !important;
+      width: 38px !important;
+      height: 38px !important;
+    }
+
+    #aim-circle .aim-visual {
+      position: relative !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    #aim-circle .aim-dot {
+      position: absolute !important;
+      top: 50% !important;
+      left: 50% !important;
+      width: 5px !important;
+      height: 5px !important;
+      background: #00ffaa !important;
+      border-radius: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      box-shadow: 0 0 6px rgba(0, 255, 170, 0.95), 0 0 2px #000000 !important;
+      border: none !important;
+      opacity: 1 !important;
+      display: block !important;
+    }
+
+    body.aim-mode-active #aim-circle .aim-dot {
+      background: #ff3344 !important;
+      box-shadow: 0 0 10px rgba(255, 51, 68, 1.0), 0 0 2px #000000 !important;
+    }
+
+    #aim-circle .aim-part {
+      position: absolute !important;
+      background: #ffffff !important;
+      box-shadow: 0 0 2px #000000, 0 0 4px rgba(0, 0, 0, 0.8) !important;
+      background-image: none !important;
+      border-radius: 1px !important;
+    }
+
+    body.aim-mode-active #aim-circle .aim-part {
+      background: #00ffaa !important;
+      box-shadow: 0 0 6px rgba(0, 255, 170, 0.9), 0 0 2px #000000 !important;
+    }
+
+    #aim-circle .aim-top {
+      top: 0px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: 2px !important;
+      height: 8px !important;
+    }
+
+    #aim-circle .aim-bottom {
+      bottom: 0px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: 2px !important;
+      height: 8px !important;
+    }
+
+    #aim-circle .aim-left {
+      left: 0px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      width: 8px !important;
+      height: 2px !important;
+    }
+
+    #aim-circle .aim-right {
+      right: 0px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      width: 8px !important;
+      height: 2px !important;
+    }
+
+    #aim-circle .aim-kill,
+    #aim-circle .aim-kill-part,
+    #aim-circle .aim-grab-mode-wrapper,
+    .tank-crosshair {
+      display: none !important;
+    }
+
+    /* Completely eliminate all storytelling, case-study, tutorial, and portfolio elements */
+    .tutorial-card,
+    .tutorial-layer,
+    #tutorial-layer,
+    .action-point,
+    .action-point-layer,
+    .case-study-page,
+    .case-study-page__images-column,
+    .case-study-page__sidebar,
+    .case-study-page__toc-bg,
+    .case-study-page__toc-surface,
+    .about-page,
+    .statue-page,
+    .hanzii-page,
+    .touch-map-button,
+    .grab-mode-bottom-hud,
+    .grab-mode-pill,
+    .email-popup,
+    .submit-item-popup {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+
+    /* Top Header Banner */
+    .tank-top-bar {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(15, 20, 28, 0.75);
+      border: 1px solid rgba(0, 255, 170, 0.35);
+      border-radius: 6px;
+      padding: 6px 20px;
+      backdrop-filter: blur(8px);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .tank-top-bar .badge {
+      background: #00ffaa;
+      color: #0b0f15;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-weight: 800;
+    }
+
+    /* Bottom Left: Vehicle Status & Hull Compass */
+    .tank-status-panel {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      width: 280px;
+      background: rgba(12, 17, 24, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-left: 4px solid #00ffaa;
+      border-radius: 8px;
+      padding: 16px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .tank-status-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #00ffaa;
+    }
+
+    .tank-hp-bar-shell {
+      width: 100%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .tank-hp-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #00ffaa, #00bfff);
+      transition: width 0.3s ease;
+    }
+
+    .tank-telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #a0aec0;
+      font-weight: 600;
+    }
+
+    .tank-telemetry-value {
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    /* Bottom Right: Weapon & Munitions Tray */
+    .tank-weapon-panel {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      width: 260px;
+      background: rgba(12, 17, 24, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-right: 4px solid #00d4ff;
+      border-radius: 8px;
+      padding: 16px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      text-align: right;
+    }
+
+    .tank-weapon-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: #00d4ff;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .tank-status-ready {
+      font-size: 13px;
+      font-weight: 700;
+      color: #00ffaa;
+      margin-bottom: 8px;
+    }
+
+    .tank-ammo-counts {
+      display: flex;
+      justify-content: flex-end;
+      gap: 16px;
+      font-size: 12px;
+      color: #cbd5e0;
+    }
+
+    /* Controls guide bottom bar */
+    .tank-controls-bar {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(0, 0, 0, 0.5);
+      padding: 4px 14px;
+      border-radius: 20px;
+      letter-spacing: 0.06em;
+    }
+
+    .tank-controls-bar span {
+      color: #00ffaa;
+      font-weight: 700;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="js-fonts-loader fonts-loader">
+    <div class="font crocante" data-font="800 20px Crocante">&nbsp;</div>
+    <div class="font barlow" data-font="400 20px Barlow">&nbsp;</div>
+  </div>
+  <div id="startup-intro" class="startup-intro" data-state="LOADING">
+    <div class="startup-intro__title" role="img" aria-label="WORLD WAR TANKS 3D"></div>
+    <div class="startup-intro__stage startup-intro__stage--loading">
+      <div class="startup-intro__loader-shell">
+        <div class="startup-intro__label-row">
+          <p id="startup-loader-label" class="startup-intro__label" aria-live="polite">PREPARING RENDERER...</p>
+          <div class="startup-intro__spinner">
+            <img class="startup-intro__spinner-icon startup-intro__spinner-icon--left"
+              src="/assets/elements/icons/secondary-settings.svg" alt="" aria-hidden="true" width="24" height="24" />
+            <img class="startup-intro__spinner-icon startup-intro__spinner-icon--right"
+              src="/assets/elements/icons/secondary-settings.svg" alt="" aria-hidden="true" width="24" height="24" />
+          </div>
+        </div>
+        <div class="startup-intro__progress" role="progressbar" aria-labelledby="startup-loader-label" aria-valuemin="0"
+          aria-valuemax="100" aria-valuenow="0">
+          <svg width="350" height="31" viewBox="0 0 350 31" fill="none" xmlns="http://www.w3.org/2000/svg"
+            class="startup-intro__progress-svg">
+            <g id="progress_bar">
+              <use href="/assets/elements/hud/progress-bar.svg#overlay" />
+              <use id="bar_1" href="/assets/elements/hud/progress-bar.svg#bar_1" style="display: none;" />
+              <use id="bar_2" href="/assets/elements/hud/progress-bar.svg#bar_2" style="display: none;" />
+              <use id="bar_3" href="/assets/elements/hud/progress-bar.svg#bar_3" style="display: none;" />
+              <use id="bar_4" href="/assets/elements/hud/progress-bar.svg#bar_4" style="display: none;" />
+              <use id="bar_5" href="/assets/elements/hud/progress-bar.svg#bar_5" style="display: none;" />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <main id="app-root" role="main" aria-label="World War Tanks 3D Game">
+    <h1 class="u-visually-hidden">World War Tanks: 3D Armored Warfare</h1>
+
+    <!-- Crawlable Static Semantic Outline for Search Engines -->
+    <section class="u-visually-hidden" aria-label="Game Overview and Field Manual">
+      <header>
+        <h2>World War Tanks: 3D Armored Warfare</h2>
+        <p>
+          Command heavy armor in an authentic 3D World War tank simulator. Featuring realistic track dynamics, neutral
+          pivot steering, independent turret traverse, ballistic cannon trajectories, and tactical battlefield
+          destruction.
+        </p>
+      </header>
+      <section aria-label="Armored Combat Systems">
+        <h3>Combat Specifications</h3>
+        <ul>
+          <li><strong>Chassis:</strong> Heavy Combat Track System with dual-sprocket independent track physics</li>
+          <li><strong>Main Armament:</strong> 88mm KwK High-Velocity Cannon with APCR and HE shell complement</li>
+          <li><strong>Turret Drive:</strong> 360-degree precision hydraulic turret with gyroscopic stabilization</li>
+          <li><strong>Controls:</strong> WASD track steering, Mouse turret look & aim, Left Click / Space to fire</li>
+        </ul>
+      </section>
+      <section aria-label="Combat Sectors">
+        <h3>Combat Operations</h3>
+        <p>
+          Navigate hazardous industrial conflict zones, engage hostile armor detachments, eliminate enemy
+          fortifications, and secure allied supply depots across open battlegrounds.
+        </p>
+      </section>
+    </section>
+
+
+
+
+
+    <h2>Core Technology Stack & Principles</h2>
+    <p>Engineered with Three.js, Rapier 3D physics, procedural track dynamics, and WebGL rendering.</p>
+    </section>
+
+    <canvas id="webgl" role="img" tabindex="0"
+      aria-label="3D Interactive Portfolio World featuring interactive projects, characters, and environment">
+      <p>Your browser does not support WebGL. Please enable WebGL or access the portfolio details in text mode.</p>
+    </canvas>
+  </main>
+  <noscript>
+    <div
+      style="padding: 2rem; color: #ffffff; background: #0c1118; font-family: sans-serif; max-width: 800px; margin: 0 auto;">
+      <h1>World War Tanks: 3D Armored Warfare</h1>
+      <p>A WebGL-enabled browser is required to play World War Tanks 3D.</p>
+      <h2>Combat Controls</h2>
+      <ul>
+        <li><strong>W / S:</strong> Hull Treads Forward / Reverse</li>
+        <li><strong>A / D:</strong> Neutral Pivot Steering Left / Right</li>
+        <li><strong>Mouse:</strong> Turret Traverse & Camera Orbit</li>
+        <li><strong>Space / Click:</strong> Fire Main Cannon</li>
+        <li><strong>Shift:</strong> Boost Overdrive</li>
+      </ul>
+    </div>
+  </noscript>
+
+  <!-- World War Tanks Game Tactical HUD -->
+  <div id="tank-hud">
+    <!-- Aim Required Alert Prompt -->
+    <div id="aim-required-alert"
+      style="opacity: 0; transition: opacity 0.25s ease; position: absolute; bottom: 84px; left: 50%; transform: translateX(-50%); background: rgba(220, 40, 40, 0.9); color: #ffffff; font-size: 12px; font-weight: 800; padding: 6px 18px; border-radius: 4px; pointer-events: none; letter-spacing: 0.1em; z-index: 1000; box-shadow: 0 0 16px rgba(220, 40, 40, 0.6);">
+      HOLD RIGHT CLICK OR PRESS SCROLL TO AIM BEFORE FIRING
+    </div>
+
+    <!-- FPS Sniper Mode Indicator Badge -->
+    <div id="fps-mode-badge"
+      style="display: none; position: absolute; top: 64px; left: 50%; transform: translateX(-50%); background: rgba(10, 20, 28, 0.85); border: 1.5px solid #00ffaa; color: #00ffaa; font-size: 11px; font-weight: 800; padding: 4px 16px; border-radius: 4px; letter-spacing: 0.12em; box-shadow: 0 0 16px rgba(0, 255, 170, 0.4); backdrop-filter: blur(8px); pointer-events: none;">
+      ● FPS TURRET GUNNER &middot; FREE AIM ACTIVE
+    </div>
+
+    <!-- Reticle -->
+
+
+    <!-- Top Combat Header -->
+    <div class="tank-top-bar">
+      <span class="badge">WW TANKS</span>
+      <span>SECTOR: COMBAT ZONE ALPHA</span>
+      <span style="color: #00ffaa;">● ONLINE</span>
+    </div>
+
+    <!-- Bottom Left Status Widget -->
+    <div class="tank-status-panel">
+      <div class="tank-status-title">
+        <span>T-84 COMBAT TANK</span>
+        <span id="tank-armor-txt">ARMOR: 100%</span>
+      </div>
+      <div class="tank-hp-bar-shell">
+        <div id="tank-hp-bar" class="tank-hp-fill"></div>
+      </div>
+      <div class="tank-telemetry-row">
+        <div>
+          <div>SPEED</div>
+          <div id="tank-speed-val" class="tank-telemetry-value">0 <span style="font-size: 11px;">KM/H</span></div>
+        </div>
+        <div>
+          <div>GEAR</div>
+          <div id="tank-gear-val" class="tank-telemetry-value" style="color: #00ffaa;">1ST</div>
+        </div>
+        <div>
+          <div>HULL HEADING</div>
+          <div id="tank-heading-val" class="tank-telemetry-value">035°</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Right Weapon Widget -->
+    <div class="tank-weapon-panel">
+      <div class="tank-weapon-name">88mm KwK HIGH-VELOCITY CANNON</div>
+      <div id="tank-reload-status" class="tank-status-ready">● LOADED & READY</div>
+      <div class="tank-ammo-counts">
+        <div>APCR: <strong id="tank-ap-count" style="color: #ffffff;">38</strong></div>
+        <div>HE SHELL: <strong id="tank-he-count" style="color: #ffffff;">14</strong></div>
+      </div>
+    </div>
+
+    <!-- Controls hint -->
+    <div class="tank-controls-bar">
+      <span>WASD</span> TANK TREADS &middot; <span>MOUSE</span> 360° LOOK &amp; TURRET AIM &middot; <span>CLICK
+        CANVAS</span> LOCK CURSOR &middot; <span>HOLD R-CLICK</span> ZOOM AIM &middot; <span>PRESS SCROLL</span> LOCK
+      AIM &middot; <span>L-CLICK</span> FIRE CANNON
+    </div>
+  </div>
+
+  <!-- HUD Telemetry & Key Update Script -->
+  <script>
+    (function () {
+      let reloadTimer = 0;
+      let isBoosting = false;
+
+      // Auto dismiss intro overlay upon click or keypress
+      document.addEventListener('click', function (e) {
+        const intro = document.querySelector('.startup-intro');
+        if (intro && intro.style.display !== 'none' && !intro.classList.contains('startup-intro--dismissed')) {
+          const btn = document.querySelector('.startup-intro__enter');
+          if (btn) btn.click();
+          intro.classList.add('startup-intro--dismissed');
+          intro.style.display = 'none';
+        }
+      });
+
+      window.addEventListener('keydown', function (e) {
+        const intro = document.querySelector('.startup-intro');
+        if (intro && intro.style.display !== 'none' && !intro.classList.contains('startup-intro--dismissed')) {
+          if (['Space', 'Enter', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) {
+            const btn = document.querySelector('.startup-intro__enter');
+            if (btn) btn.click();
+            intro.classList.add('startup-intro--dismissed');
+            intro.style.display = 'none';
+          }
+        }
+      });
+
+      // Pointer Lock on Canvas Click
+      const canvas = document.querySelector('#webgl');
+      if (canvas) {
+        canvas.addEventListener('click', function () {
+          if (!document.pointerLockElement) {
+            canvas.requestPointerLock?.();
+          }
+        });
+      }
+
+      // Space key cannon firing
+      window.addEventListener('keydown', function (e) {
+        if (e.code === 'Space' && reloadTimer <= 0) {
+          triggerShoot();
+        }
+        if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+          isBoosting = true;
+        }
+      });
+
+      window.addEventListener('keyup', function (e) {
+        if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+          isBoosting = false;
+        }
+      });
+
+      // Canvas click lock for seamless PC mouse look
+      window.addEventListener('pointerdown', function (e) {
+        if (!e.target || e.target.closest('button, a, input, textarea, select')) return;
+        const canvas = document.querySelector('canvas');
+        if (canvas && document.pointerLockElement !== canvas) {
+          canvas.requestPointerLock?.();
+        }
+      });
+
+      function triggerShoot() {
+        if (reloadTimer > 0) return;
+        reloadTimer = 0.25;
+
+        const reloadIndicatorEl = document.querySelector('.tactical-hud__reload-indicator');
+        if (reloadIndicatorEl) {
+          reloadIndicatorEl.textContent = '● RECHARGING BREECH...';
+          reloadIndicatorEl.style.color = '#ffaa00';
+        }
+
+        const tankReloadEl = document.querySelector('#tank-reload-status');
+        if (tankReloadEl) {
+          tankReloadEl.textContent = '○ RELOADING...';
+          tankReloadEl.style.color = '#ffaa00';
+        }
+
+        // Decrement ammo count
+        const apEl = document.querySelector('#tank-ap-count');
+        if (apEl) {
+          let cur = parseInt(apEl.textContent, 10);
+          if (!isNaN(cur) && cur > 0) apEl.textContent = cur - 1;
+        }
+
+        // Screen recoil kick
+        const ch = document.querySelector('#aim-circle');
+        if (ch) {
+          ch.style.transform = 'translate(-50%, -54%) scale(1.2)';
+          setTimeout(() => {
+            ch.style.transform = 'translate(-50%, -50%) scale(1.0)';
+          }, 100);
+        }
+      }
+
+      // High frequency 60fps real-time physics HUD telemetry sync
+      // High performance cached HUD telemetry
+      let _cachedSpeedEl = null, _cachedGearEl = null, _cachedHeadingEl = null, _cachedBarEl = null, _cachedArmorEl = null, _cachedReloadEl = null;
+      let _lastKmh = -1, _lastGear = '', _lastDeg = -1, _lastPct = -1, _lastReloadReady = false;
+
+      window.addEventListener('mousedown', function (e) {
+        if (e.button === 0) {
+          const cam = window._app && window._app.world ? window._app.world.camera : null;
+          const isAimActive = cam && (cam.isAiming || cam.isAimFixed);
+          if (!isAimActive) {
+            const alertEl = document.querySelector('#aim-required-alert');
+            if (alertEl) {
+              alertEl.style.opacity = '1';
+              clearTimeout(alertEl._timer);
+              alertEl._timer = setTimeout(() => { alertEl.style.opacity = '0'; }, 1100);
+            }
+            return;
+          }
+          if (reloadTimer <= 0) {
+            triggerShoot();
+          }
+        }
+      });
+
+      // Auto-enable input and dynamic physics body immediately
+      function ensureGameActive() {
+        if (window._app && window._app.world) {
+          const ctrl = window._app.world.controller;
+          if (ctrl) ctrl.inputEnabled = true;
+          const pw = window._app.world.physicsWorld;
+          if (pw && pw.robotRigidBody && pw.robotRigidBody.bodyType && pw.robotRigidBody.bodyType() !== 0) {
+            pw.robotRigidBody.setBodyType(0, true);
+            pw.robotRigidBody.wakeUp();
+          }
+          const cam = window._app.world.camera;
+          if (cam && cam.introCamera && cam.introCamera.active) {
+            cam.introCamera.active = false;
+            cam.introCamera.zoomScale = 1;
+            cam.introCamera.targetZoomScale = 1;
+            cam.introCenterOffset.set(0, 0, 0);
+            cam.introPan.set(0, 0, 0);
+            cam.canFollowMouse = true;
+          }
+        }
+      }
+      setInterval(ensureGameActive, 500);
+
+      function updateHudTelemetry() {
+        requestAnimationFrame(updateHudTelemetry);
+
+        if (!_cachedReloadEl) _cachedReloadEl = document.querySelector('#tank-reload-status');
+        if (!_cachedSpeedEl) _cachedSpeedEl = document.querySelector('#tank-speed-val');
+        if (!_cachedGearEl) _cachedGearEl = document.querySelector('#tank-gear-val');
+        if (!_cachedHeadingEl) _cachedHeadingEl = document.querySelector('#tank-heading-val');
+        if (!_cachedBarEl) _cachedBarEl = document.querySelector('#tank-hp-bar');
+        if (!_cachedArmorEl) _cachedArmorEl = document.querySelector('#tank-armor-txt');
+
+        if (reloadTimer > 0) {
+          reloadTimer -= 0.016;
+          if (reloadTimer <= 0) {
+            reloadTimer = 0;
+            if (_cachedReloadEl && !_lastReloadReady) {
+              _cachedReloadEl.textContent = '● LOADED & READY';
+              _cachedReloadEl.style.color = '#00ffaa';
+              _lastReloadReady = true;
+            }
+          }
+        }
+
+        try {
+          const app = window._app;
+          if (!app || !app.world || !app.world.physicsWorld || !app.world.physicsWorld.robotRigidBody) return;
+
+          const body = app.world.physicsWorld.robotRigidBody;
+          const linvel = body.linvel();
+          const rawSpeed = Math.hypot(linvel.x, linvel.z);
+          const kmh = Math.round(rawSpeed * 3.6);
+
+          if (kmh !== _lastKmh && _cachedSpeedEl) {
+            _lastKmh = kmh;
+            _cachedSpeedEl.textContent = kmh + ' ';
+          }
+
+          // Gear determination
+          let gearText = '1ST', gearColor = '#00ffaa';
+          if (kmh < 2) {
+            gearText = 'NEUT';
+          } else if (isBoosting || kmh > 65) {
+            gearText = 'BOOST';
+            gearColor = '#ff3366';
+          } else if (kmh < 20) {
+            gearText = '1ST';
+          } else if (kmh < 45) {
+            gearText = '2ND';
+          } else {
+            gearText = '3RD';
+          }
+
+          if (gearText !== _lastGear && _cachedGearEl) {
+            _lastGear = gearText;
+            _cachedGearEl.textContent = gearText;
+            _cachedGearEl.style.color = gearColor;
+          }
+
+          // Heading calculation from tank rotation
+          const rot = body.rotation();
+          const siny_cosp = 2 * (rot.w * rot.y + rot.x * rot.z);
+          const cosy_cosp = 1 - 2 * (rot.y * rot.y + rot.z * rot.z);
+          let yaw = Math.atan2(siny_cosp, cosy_cosp);
+          let deg = Math.round((yaw * 180 / Math.PI + 360) % 360);
+          if (deg !== _lastDeg && _cachedHeadingEl) {
+            _lastDeg = deg;
+            _cachedHeadingEl.textContent = String(deg).padStart(3, '0') + '°';
+          }
+
+          // Armor integrity from robot health
+          const robot = app.world.robot;
+          if (robot) {
+            const hp = typeof robot.health === 'number' ? robot.health : 100;
+            const maxHp = typeof robot.maxHealth === 'number' ? robot.maxHealth : 100;
+            const pct = Math.max(0, Math.min(100, Math.round(hp / maxHp * 100)));
+            if (pct !== _lastPct) {
+              _lastPct = pct;
+              if (_cachedBarEl) _cachedBarEl.style.width = pct + '%';
+              if (_cachedArmorEl) _cachedArmorEl.textContent = pct + '%';
+            }
+          }
+        } catch (e) { }
+      }
+
+      requestAnimationFrame(updateHudTelemetry);
+    })();
+  </script>
+
+  <script>
+    // Left click fire trigger with aim check
+    window.addEventListener('mousedown', function (e) {
+      if (e.button === 0) {
+        const app = window._app || window.app;
+        const cam = app && app.camera;
+        const isAim = cam && (cam.isAiming || cam.isAimFixed);
+        if (!isAim) {
+          const alertEl = document.getElementById('aim-required-alert');
+          if (alertEl) {
+            alertEl.classList.add('visible');
+            clearTimeout(window._aimAlertTimer);
+            window._aimAlertTimer = setTimeout(() => {
+              alertEl.classList.remove('visible');
+            }, 1800);
+          }
+        }
+      }
+    }, true);
+  </script>
+</body>
+
+</html>
