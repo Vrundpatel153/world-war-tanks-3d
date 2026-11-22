@@ -5,10 +5,10 @@ if(this.mousePanOffset.distanceToSquared(this.targetMousePan)<1e-6){
   this.mousePanOffset.lerp(this.targetMousePan,r);
 }
 let isAim = this.isAiming || this.isAimFixed;
-let camDist = this._orbitDistance || (isAim ? 4.8 : 7.0);
-let pivotY = 0.5;
-let camH = isAim ? 1.4 : 1.9;
-let focusDist = 45.0;
+let camDist = this._orbitDistance || (isAim ? 4.2 : 6.8);
+let pivotY = 1.0;
+let camH = isAim ? 1.1 : 1.45;
+let focusDist = 35.0;
 
 let cosP = Math.cos(this._orbitPitch);
 let sinP = Math.sin(this._orbitPitch);
@@ -16,7 +16,7 @@ let sinY = Math.sin(this._orbitYaw);
 let cosY = Math.cos(this._orbitYaw);
 
 let rx = camDist * cosP * sinY;
-let ry = camDist * sinP + camH;
+let ry = Math.max(0.5, camDist * sinP) + camH;
 let rz = camDist * cosP * cosY;
 
 this.angle.value.set(rx, ry, rz);
@@ -27,7 +27,9 @@ this.viewAPosition.x += rx;
 this.viewAPosition.y += pivotY + ry;
 this.viewAPosition.z += rz;
 
-this.viewAFocus.copy(this.viewAPosition).addScaledVector(this.forwardVec, focusDist);
+this.viewAFocus.copy(this.targetEased);
+this.viewAFocus.y += pivotY;
+this.viewAFocus.addScaledVector(this.forwardVec, focusDist);
 
 // Disable all cinematic sequences
 if(this.introCamera){ this.introCamera.active = false; this.introCamera.zoomScale = 1.0; }
@@ -136,7 +138,7 @@ this.instance.updateMatrixWorld(!0),this.updateOptimalArea()})}initZoom(){this.z
             const sens = isAimActive ? 0.0020 : 0.0028;
             this._targetOrbitYaw -= dx * sens;
             this._targetOrbitPitch += dy * sens;
-            this._targetOrbitPitch = Math.max(-0.05, Math.min(0.48, this._targetOrbitPitch));
+            this._targetOrbitPitch = Math.max(0.04, Math.min(0.44, this._targetOrbitPitch));
             this._userLookTimer = 5.0;
         };
 
@@ -149,9 +151,13 @@ this.instance.updateMatrixWorld(!0),this.updateOptimalArea()})}initZoom(){this.z
         };
 
         const onWheel = ev => {
-            if(ev.target && ev.target.closest && ev.target.closest(".about-page, .statue-page, .case-study-page, .hanzii-page, .email-popup, .submit-item-popup, [role='dialog'], textarea, input, select")) return;
-            const delta = ev.deltaY > 0 ? 0.45 : -0.45;
-            this._targetOrbitDistance = Math.max(2.4, Math.min(9.5, this._targetOrbitDistance + delta));
+            if(ev.target && ev.target.closest && ev.target.closest(".about-page, .statue-page, .case-study-page, .hanzii-page, .email-popup, .submit-item-popup, [role='dialog'], textarea, input, select, button")) return;
+            const delta = ev.deltaY > 0 ? 0.55 : -0.55;
+            if(this.isAiming || this.isAimFixed){
+                this._userZoomAim = Math.max(2.0, Math.min(6.2, (this._userZoomAim || 4.2) + delta));
+            } else {
+                this._userZoomDrive = Math.max(4.2, Math.min(10.5, (this._userZoomDrive || 6.8) + delta));
+            }
         };
 
         window.addEventListener("pointerdown", onDown, {passive: false});
@@ -187,7 +193,10 @@ this.instance.updateMatrixWorld(!0),this.updateOptimalArea()})}initZoom(){this.z
     let sinY = Math.sin(this._orbitYaw);
     let cosY = Math.cos(this._orbitYaw);
 
-    let targetDist = (this.isAiming || this.isAimFixed) ? 4.8 : 7.0;
+    let isAimNow = this.isAiming || this.isAimFixed;
+    this._userZoomAim = this._userZoomAim || 4.2;
+    this._userZoomDrive = this._userZoomDrive || 6.8;
+    let targetDist = isAimNow ? this._userZoomAim : this._userZoomDrive;
     this._targetOrbitDistance += (targetDist - this._targetOrbitDistance) * Math.min(1.0, 10 * e);
     let rx = this._orbitDistance * cosP * sinY;
     let ry = this._orbitDistance * sinP + 0.70;
