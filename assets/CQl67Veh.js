@@ -136,7 +136,7 @@ this.instance.updateMatrixWorld(!0),this.updateOptimalArea()})}initZoom(){this.z
                     dy = Math.sign(dy) * Math.min(Math.abs(dy), 30);
                 }
             }
-            const sens = (isAimActive ? 0.0020 : 0.0028) * (window.gameMouseSensMultiplier || 1.0);
+            const sens = (isAimActive ? 0.0042 : 0.0058) * (window.gameMouseSensMultiplier || 1.0);
             const effDy = (window.gameInvertY ? -1 : 1) * dy;
             this._targetOrbitYaw -= dx * sens;
             this._targetOrbitPitch += effDy * sens;
