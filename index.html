@@ -2025,6 +2025,14 @@
             <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 11px;">High-resolution KTX2 textures, native display DPI, zero downscaling.</p>
           </div>
 
+          <div><strong style="color: #00ffaa;">PERFORMANCE / FPS</strong></div>
+          <div>
+            <button id="opt-btn-perf" class="menu-btn" style="padding: 8px 16px; font-size: 12px; display: inline-flex;" onclick="window.togglePerformanceMode()">
+              <span id="opt-txt-perf">⚡ 60 FPS LOCKED (SMOOTH)</span>
+            </button>
+            <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 11px;">Optimizes WebGL pipeline and pixel fill rate for locked 50-60 FPS.</p>
+          </div>
+
           <div><strong style="color: #00ffaa;">AUDIO EFFECTS (SFX)</strong></div>
           <div>
             <button id="opt-btn-audio" class="menu-btn" style="padding: 8px 16px; font-size: 12px; display: inline-flex;" onclick="window.toggleMenuAudio()">
@@ -2220,6 +2228,30 @@
         const optTxt = document.getElementById('opt-txt-audio');
         if (optTxt) {
           optTxt.textContent = _isAudioMuted ? '🔇 SFX: MUTED' : '🔊 SFX: ENABLED';
+        }
+      };
+
+      
+      // Performance Mode toggle for 60 FPS locked
+      window._isLowDpi = false;
+      window.togglePerformanceMode = function() {
+        window._isLowDpi = !window._isLowDpi;
+        const txt = document.getElementById('opt-txt-perf');
+        const app = window._app;
+        if (window._isLowDpi) {
+          if (txt) txt.textContent = '⚡ 60 FPS HIGH PERFORMANCE (1.0x)';
+          if (app && app.renderer) {
+            app.maxRenderPixelRatio = 1.0;
+            app.renderer.setPixelRatio(1.0);
+            app.renderer.setSize(window.innerWidth, window.innerHeight);
+          }
+        } else {
+          if (txt) txt.textContent = '⚡ 60 FPS BALANCED ULTRA (1.25x)';
+          if (app && app.renderer) {
+            app.maxRenderPixelRatio = 1.25;
+            app.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+            app.renderer.setSize(window.innerWidth, window.innerHeight);
+          }
         }
       };
 
