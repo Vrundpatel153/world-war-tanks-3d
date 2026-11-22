@@ -763,6 +763,21 @@
       pointer-events: none !important;
     }
 
+    
+    /* PERMANENT SUPPRESSION OF TUTORIAL CARDS & FLOATING NOTICES */
+    .tutorial-card,
+    .tutorial-card--desktop,
+    .tutorial-card__panel,
+    .tutorial-card__touch-body,
+    .tutorial-card__content,
+    .tutorial-card__keys,
+    .tutorial-card__copy {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
     </style>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1938,24 +1953,16 @@
         <!-- Actions List -->
         <div class="menu-actions">
           <button class="menu-btn primary" onclick="window.startGameFromMenu()">
-            <span>▶ DEPLOY TO BATTLEFIELD</span>
+            <span>▶ PLAY</span>
             <span class="btn-arrow">&rarr;</span>
           </button>
+          <button class="menu-btn" onclick="window.openMenuModal('modal-options')">
+            <span>⚙ OPTIONS &amp; SETTINGS</span>
+            <span class="btn-arrow">&rsaquo;</span>
+          </button>
           <button class="menu-btn" onclick="window.openMenuModal('modal-controls')">
-            <span>⚙ CONTROLS &amp; MANUAL</span>
+            <span>🎮 CONTROLS</span>
             <span class="btn-arrow">&rsaquo;</span>
-          </button>
-          <button class="menu-btn" onclick="window.openMenuModal('modal-map')">
-            <span>🌐 SECTOR INTEL &amp; MAP</span>
-            <span class="btn-arrow">&rsaquo;</span>
-          </button>
-          <button class="menu-btn" id="btn-toggle-audio" onclick="window.toggleMenuAudio()">
-            <span id="txt-audio-status">🔊 AUDIO: SFX ON</span>
-            <span class="btn-arrow">&bull;</span>
-          </button>
-          <button class="menu-btn" onclick="window.toggleFullscreen()">
-            <span>⚡ FULLSCREEN TOGGLE</span>
-            <span class="btn-arrow">&harr;</span>
           </button>
         </div>
 
@@ -2003,6 +2010,49 @@
     </div>
 
     <!-- Controls Manual Modal -->
+    
+    <!-- Options & Settings Modal -->
+    <div id="modal-options" class="menu-modal-overlay">
+      <div class="menu-modal" style="max-width: 580px;">
+        <div class="menu-modal-header">
+          <h2 class="menu-modal-title">GAME OPTIONS &amp; SETTINGS</h2>
+          <button class="menu-modal-close" onclick="window.closeMenuModal('modal-options')">&times;</button>
+        </div>
+        <div class="controls-grid" style="grid-template-columns: 180px 1fr; row-gap: 20px; font-size: 13px;">
+          <div><strong style="color: #00ffaa;">GRAPHICS &amp; TEXTURES</strong></div>
+          <div>
+            <span class="key-badge" style="background: rgba(0, 255, 170, 0.2); color: #00ffaa; border-color: #00ffaa;">ULTRA (16x ANISOTROPY)</span>
+            <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 11px;">High-resolution KTX2 textures, native display DPI, zero downscaling.</p>
+          </div>
+
+          <div><strong style="color: #00ffaa;">AUDIO EFFECTS (SFX)</strong></div>
+          <div>
+            <button id="opt-btn-audio" class="menu-btn" style="padding: 8px 16px; font-size: 12px; display: inline-flex;" onclick="window.toggleMenuAudio()">
+              <span id="opt-txt-audio">🔊 SFX: ENABLED</span>
+            </button>
+          </div>
+
+          <div><strong style="color: #00ffaa;">DISPLAY MODE</strong></div>
+          <div>
+            <button class="menu-btn" style="padding: 8px 16px; font-size: 12px; display: inline-flex;" onclick="window.toggleFullscreen()">
+              <span>⛶ TOGGLE FULLSCREEN</span>
+            </button>
+          </div>
+
+          <div><strong style="color: #00ffaa;">GAMEPLAY MODE</strong></div>
+          <div>
+            <span class="key-badge">FULL OPEN WORLD FREE ROAM</span>
+            <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 11px;">Free testing environment: authentic tank physics, terrain collision, and 88mm KwK direct-fire ballistics.</p>
+          </div>
+        </div>
+        <div style="margin-top: 24px; text-align: right;">
+          <button class="menu-btn primary" style="display: inline-flex; padding: 10px 24px; font-size: 13px;" onclick="window.closeMenuModal('modal-options')">
+            <span>CLOSE</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div id="modal-controls" class="menu-modal-overlay">
       <div class="menu-modal">
         <div class="menu-modal-header">
@@ -2162,6 +2212,17 @@
       };
 
       // Fullscreen toggle
+      
+      // Keep options audio label in sync
+      const origToggleAudio = window.toggleMenuAudio;
+      window.toggleMenuAudio = function() {
+        if (typeof origToggleAudio === 'function') origToggleAudio();
+        const optTxt = document.getElementById('opt-txt-audio');
+        if (optTxt) {
+          optTxt.textContent = _isAudioMuted ? '🔇 SFX: MUTED' : '🔊 SFX: ENABLED';
+        }
+      };
+
       window.toggleFullscreen = function() {
         if (!document.fullscreenElement) {
           document.documentElement.requestFullscreen().catch(() => {});
