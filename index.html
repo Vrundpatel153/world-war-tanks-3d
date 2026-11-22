@@ -1331,6 +1331,7 @@
       border-left: 2px solid #363e52;
       padding: 8px 12px;
       border-radius: 0 4px 4px 0;
+      min-width: 0;
     }
 
     .spec-label {
@@ -1345,7 +1346,10 @@
       font-size: 13px;
       font-weight: 700;
       color: #e2e8f0;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .spec-value.highlight {
@@ -1569,7 +1573,7 @@
     body.in-menu-mode .tank-controls-bar,
     body.in-menu-mode #aim-circle,
     body.in-menu-mode #fps-mode-badge,
-    body.in-menu-mode #aim-required-alert {
+    body.in-menu-mode #aim-required-alert { display: none !important; opacity: 0 !important; pointer-events: none !important; 
       display: none !important;
     }
 
@@ -1680,10 +1684,7 @@
   <!-- World War Tanks Game Tactical HUD -->
   <div id="tank-hud">
     <!-- Aim Required Alert Prompt -->
-    <div id="aim-required-alert"
-      style="opacity: 0; transition: opacity 0.25s ease; position: absolute; bottom: 84px; left: 50%; transform: translateX(-50%); background: rgba(220, 40, 40, 0.9); color: #ffffff; font-size: 12px; font-weight: 800; padding: 6px 18px; border-radius: 4px; pointer-events: none; letter-spacing: 0.1em; z-index: 1000; box-shadow: 0 0 16px rgba(220, 40, 40, 0.6);">
-      HOLD RIGHT CLICK OR PRESS SCROLL TO AIM BEFORE FIRING
-    </div>
+    <!-- Free Combat Fire Active -->
 
     <!-- FPS Sniper Mode Indicator Badge -->
     <div id="fps-mode-badge"
@@ -1738,10 +1739,8 @@
     </div>
 
     <!-- Controls hint -->
-    <div class="tank-controls-bar">
-      <span>WASD</span> TANK TREADS &middot; <span>MOUSE</span> 360° LOOK &amp; TURRET AIM &middot; <span>CLICK
-        CANVAS</span> LOCK CURSOR &middot; <span>HOLD R-CLICK</span> ZOOM AIM &middot; <span>PRESS SCROLL</span> LOCK
-      AIM &middot; <span>L-CLICK</span> FIRE CANNON
+        <div class="tank-controls-bar">
+      <span>WASD</span> DRIVE TANK &middot; <span>MOUSE</span> 360° TURRET AIM &middot; <span>L-CLICK / SPACE</span> FIRE CANNON &middot; <span>HOLD R-CLICK</span> OPTICAL SNIPER ZOOM &middot; <span>ESC</span> PAUSE MENU
     </div>
   </div>
 
@@ -1869,17 +1868,6 @@
       window.addEventListener('mousedown', function (e) {
         if (window.isGameMenuOpen) return;
         if (e.button === 0) {
-          const cam = window._app && window._app.world ? window._app.world.camera : null;
-          const isAimActive = cam && (cam.isAiming || cam.isAimFixed);
-          if (!isAimActive) {
-            const alertEl = document.querySelector('#aim-required-alert');
-            if (alertEl) {
-              alertEl.style.opacity = '1';
-              clearTimeout(alertEl._timer);
-              alertEl._timer = setTimeout(() => { alertEl.style.opacity = '0'; }, 1100);
-            }
-            return;
-          }
           if (reloadTimer <= 0) {
             triggerShoot();
           }
@@ -1997,26 +1985,7 @@
     })();
   </script>
 
-  <script>
-    // Left click fire trigger with aim check
-    window.addEventListener('mousedown', function (e) {
-      if (e.button === 0) {
-        const app = window._app || window.app;
-        const cam = app && app.camera;
-        const isAim = cam && (cam.isAiming || cam.isAimFixed);
-        if (!isAim) {
-          const alertEl = document.getElementById('aim-required-alert');
-          if (alertEl) {
-            alertEl.classList.add('visible');
-            clearTimeout(window._aimAlertTimer);
-            window._aimAlertTimer = setTimeout(() => {
-              alertEl.classList.remove('visible');
-            }, 1800);
-          }
-        }
-      }
-    }, true);
-  </script>
+  <!-- Left click fire unblocked -->
 
     <!-- In-Game Return to Menu Button -->
     <button id="btn-return-menu" onclick="window.openGameMenu()">MENU [ESC]</button>

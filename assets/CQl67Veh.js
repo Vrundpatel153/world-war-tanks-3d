@@ -186,7 +186,7 @@ this.instance.updateMatrixWorld(!0),this.updateOptimalArea()})}initZoom(){this.z
         this._targetOrbitDistance = 6.4;
     }
 
-    let damp = 1 - Math.exp(-32 * e);
+    let damp = 1 - Math.exp(-85 * e);
     this._orbitYaw += (this._targetOrbitYaw - this._orbitYaw) * damp;
     this._orbitPitch += (this._targetOrbitPitch - this._orbitPitch) * damp;
     this._orbitDistance += (this._targetOrbitDistance - this._orbitDistance) * damp;
