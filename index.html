@@ -2,6 +2,9 @@
 <html lang="en" data-ui-theme="light">
 
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
   <script>
     (function () {
       window.__errors = [];
@@ -417,7 +420,7 @@
     }
   </script>
   <!-- End Cloudflare Web Analytics -->
-  <script type="module" crossorigin src="/assets/vYUQZzfX.js"></script>
+  <script type="module" crossorigin src="/assets/vYUQZzfX.js?v=2.6.0"></script>
   <link rel="modulepreload" crossorigin href="/assets/C0xwqhbh.js">
   <link rel="modulepreload" crossorigin href="/assets/DrDnj3Lb.js">
   <link rel="modulepreload" crossorigin href="/assets/BW6YWG0R.js">
@@ -720,12 +723,24 @@
             /* =========================================================
        PHYSICAL IN-GAME TACTICAL HARDWARE CURSOR
        ========================================================= */
+    /* AUTHENTIC HARDWARE-ACCELERATED IN-GAME TACTICAL CURSOR */
     body.in-menu-mode,
-    body.in-menu-mode *,
+    body.in-menu-mode * {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpolygon points='1,1 1,22 7,16 11,26 15,24 11,15 19,15' fill='%23c7ff72' stroke='%23000' stroke-width='1.5' stroke-linejoin='round' filter='drop-shadow(0 2px 4px rgba(0,0,0,0.8))'/%3E%3Cpolygon points='3,4 3,17 7,13 10,21 12,20 9,13 15,13' fill='%2300ffaa' opacity='0.7'/%3E%3Ccircle cx='2' cy='2' r='1.5' fill='%23ffffff'/%3E%3C/svg%3E") 1 1, default !important;
+    }
+
     body.in-menu-mode button,
     body.in-menu-mode a,
-    body.in-menu-mode input {
-      cursor: none !important;
+    body.in-menu-mode input,
+    body.in-menu-mode select,
+    body.in-menu-mode .btn-deck-deploy,
+    body.in-menu-mode .btn-deck-action,
+    body.in-menu-mode .preset-card,
+    body.in-menu-mode .settings-tab-btn,
+    body.in-menu-mode .opt-btn,
+    body.in-menu-mode .menu-modal-close,
+    body.in-menu-mode [role="button"] {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpolygon points='1,1 1,22 7,16 11,26 15,24 11,15 19,15' fill='%2300ffaa' stroke='%23000' stroke-width='1.5' stroke-linejoin='round' filter='drop-shadow(0 2px 4px rgba(0,0,0,0.8))'/%3E%3Cpolygon points='3,4 3,17 7,13 10,21 12,20 9,13 15,13' fill='%23ffffff' opacity='0.8'/%3E%3Ccircle cx='2' cy='2' r='1.5' fill='%23ffffff'/%3E%3C/svg%3E") 1 1, pointer !important;
     }
 
     #tactical-cursor {
@@ -735,9 +750,16 @@
       pointer-events: none;
       z-index: 99999999;
       display: none;
-      transform: translate3d(50vw, 50vh, 0);
+      opacity: 0;
+      transform: translate3d(-100px, -100px, 0);
       will-change: transform;
       user-select: none;
+      transition: opacity 0.15s ease;
+    }
+
+    body.in-menu-mode #tactical-cursor.cursor-active {
+      display: block;
+      opacity: 1;
     }
 
     body.in-menu-mode #tactical-cursor {
@@ -1845,12 +1867,20 @@
         }
       });
 
-      // Canvas click lock for seamless PC mouse look
+      // Strict Canvas click lock for seamless PC mouse look (DISABLED IN MENUS)
       window.addEventListener('pointerdown', function (e) {
-        if (!e.target || e.target.closest('button, a, input, textarea, select')) return;
+        if (window.isGameMenuOpen) return;
+        if (!e.target || e.target.closest('button, a, input, textarea, select, .game-home-screen, .menu-modal-overlay, .game-command-deck, .tactical-spec-card')) return;
         const canvas = document.querySelector('canvas');
         if (canvas && document.pointerLockElement !== canvas) {
           canvas.requestPointerLock?.();
+        }
+      }, true);
+
+      // Failsafe: Automatically release pointerLock if engaged while menu is open
+      document.addEventListener('pointerlockchange', function () {
+        if (window.isGameMenuOpen && document.pointerLockElement) {
+          try { document.exitPointerLock?.(); } catch (err) {}
         }
       });
 
@@ -2437,12 +2467,12 @@
       // Comprehensive Settings State Store
       const SETTINGS_STORAGE_KEY = 'world_war_tanks_settings_v2';
       const defaultSettings = {
-        preset: 'ultra',
-        renderScale: 1.25,
-        shadowQuality: 'ultra',
-        bloomStrength: 0.6,
-        chromaticAberration: 0.0015,
-        anisotropy: 16,
+        preset: 'med',
+        renderScale: 1.0,
+        shadowQuality: 'med',
+        bloomStrength: 0.25,
+        chromaticAberration: 0.0,
+        anisotropy: 4,
         showFps: true,
         mouseSens: 1.0,
         invertY: false,
@@ -2454,7 +2484,14 @@
       try {
         const saved = localStorage.getItem(SETTINGS_STORAGE_KEY);
         if (saved) {
-          currentSettings = { ...defaultSettings, ...JSON.parse(saved) };
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.preset === 'ultra') {
+            // Upgrade legacy lagging ultra to 60 FPS balanced preset
+            currentSettings = { ...defaultSettings };
+            localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(currentSettings));
+          } else {
+            currentSettings = { ...defaultSettings, ...parsed };
+          }
         }
       } catch(e) {}
 
@@ -2469,6 +2506,8 @@
       }
 
       function dismissLoaderAndShowMenu() {
+        if (window._hasDismissedLoader) return;
+        window._hasDismissedLoader = true;
         const intro = document.getElementById('startup-intro');
         if (intro && !intro.classList.contains('loading-dismissed')) {
           intro.classList.add('loading-dismissed');
@@ -2476,9 +2515,8 @@
             intro.style.display = 'none';
           }, 450);
         }
-        const menu = document.getElementById('game-home-screen');
-        if (menu) {
-          menu.classList.remove('menu-hidden');
+        if (!window._hasStartedGame) {
+          window.openGameMenu();
         }
       }
 
@@ -2499,6 +2537,7 @@
       // GAME PAUSE & RESUME MECHANISM
       window.startGameFromMenu = function() {
         window.isGameMenuOpen = false;
+        window._hasStartedGame = true;
         const playBtnTxt = document.querySelector('#btn-deck-play-txt');
         if (playBtnTxt) playBtnTxt.textContent = 'DEPLOY TO BATTLE';
         const deckStatus = document.getElementById('deck-simulation-status');
@@ -2971,6 +3010,7 @@
       const _tacticalCursor = document.getElementById('tactical-cursor');
       if (_tacticalCursor) {
         window.addEventListener('mousemove', function(e) {
+          _tacticalCursor.classList.add('cursor-active');
           _tacticalCursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
         }, { passive: true });
 
