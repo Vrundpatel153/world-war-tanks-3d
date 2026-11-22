@@ -422,7 +422,7 @@
     }
   </script>
   <!-- End Cloudflare Web Analytics -->
-  <script type="module" crossorigin src="/assets/vYUQZzfX.js?v=2.6.0"></script>
+  <script type="module" crossorigin src="/assets/vYUQZzfX.js?v=3.2.0"></script>
   <link rel="modulepreload" crossorigin href="/assets/C0xwqhbh.js">
   <link rel="modulepreload" crossorigin href="/assets/DrDnj3Lb.js">
   <link rel="modulepreload" crossorigin href="/assets/BW6YWG0R.js">
@@ -2412,7 +2412,7 @@
       const defaultSettings = {
         preset: 'med',
         renderScale: 1.0,
-        shadowQuality: 'med',
+        shadowQuality: 'off',
         bloomStrength: 0.0,
         chromaticAberration: 0.0,
         anisotropy: 4,
@@ -2421,7 +2421,7 @@
         invertY: false,
         audioMuted: false,
         masterVolume: 100,
-        v60fps: true
+        v60fps: 'v3.2'
       };
 
       let currentSettings = { ...defaultSettings };
@@ -2431,7 +2431,7 @@
           const parsed = JSON.parse(saved);
           if (!parsed || !parsed.v60fps || parsed.bloomStrength > 0.05 || parsed.preset === 'ultra') {
             // Auto-upgrade legacy sessions to 100% smooth locked 60 FPS HD profile
-            currentSettings = { ...defaultSettings, v60fps: true };
+            currentSettings = { ...defaultSettings, v60fps: 'v3.2' };
             localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(currentSettings));
           } else {
             currentSettings = { ...defaultSettings, ...parsed };
