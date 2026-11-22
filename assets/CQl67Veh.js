@@ -95,6 +95,7 @@ this.instance.updateMatrixWorld(!0),this.updateOptimalArea()})}initZoom(){this.z
         });
 
         const onDown = ev => {
+            if(window.isGameMenuOpen) return;
             if(ev.target && ev.target.closest && ev.target.closest(".about-page, .statue-page, .case-study-page, .hanzii-page, .email-popup, .submit-item-popup, [role='dialog'], textarea, input, select, button")) return;
             if(ev.button === 1){ // Middle mouse click (scroll button press): Toggle fixed aim
                 ev.preventDefault();
@@ -135,9 +136,10 @@ this.instance.updateMatrixWorld(!0),this.updateOptimalArea()})}initZoom(){this.z
                     dy = Math.sign(dy) * Math.min(Math.abs(dy), 30);
                 }
             }
-            const sens = isAimActive ? 0.0020 : 0.0028;
+            const sens = (isAimActive ? 0.0020 : 0.0028) * (window.gameMouseSensMultiplier || 1.0);
+            const effDy = (window.gameInvertY ? -1 : 1) * dy;
             this._targetOrbitYaw -= dx * sens;
-            this._targetOrbitPitch += dy * sens;
+            this._targetOrbitPitch += effDy * sens;
             this._targetOrbitPitch = Math.max(0.04, Math.min(0.44, this._targetOrbitPitch));
             this._userLookTimer = 5.0;
         };
@@ -151,6 +153,7 @@ this.instance.updateMatrixWorld(!0),this.updateOptimalArea()})}initZoom(){this.z
         };
 
         const onWheel = ev => {
+            if(window.isGameMenuOpen) return;
             if(ev.target && ev.target.closest && ev.target.closest(".about-page, .statue-page, .case-study-page, .hanzii-page, .email-popup, .submit-item-popup, [role='dialog'], textarea, input, select, button")) return;
             const delta = ev.deltaY > 0 ? 0.55 : -0.55;
             if(this.isAiming || this.isAimFixed){
