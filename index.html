@@ -590,7 +590,7 @@
       border: 1px solid rgba(0, 255, 170, 0.35);
       border-radius: 6px;
       padding: 6px 20px;
-      backdrop-filter: blur(8px);
+      /* backdrop-filter optimized */
       font-size: 13px;
       font-weight: 700;
       letter-spacing: 0.12em;
@@ -616,7 +616,7 @@
       border-left: 4px solid #00ffaa;
       border-radius: 8px;
       padding: 16px;
-      backdrop-filter: blur(10px);
+      /* backdrop-filter optimized */
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
@@ -672,7 +672,7 @@
       border-right: 4px solid #00d4ff;
       border-radius: 8px;
       padding: 16px;
-      backdrop-filter: blur(10px);
+      /* backdrop-filter optimized */
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       text-align: right;
     }
@@ -1451,7 +1451,7 @@
       border-radius: 6px;
       cursor: pointer;
       display: none;
-      backdrop-filter: blur(6px);
+      /* backdrop-filter optimized */
       transition: border-color 0.15s ease, color 0.15s ease;
     }
 
@@ -1466,7 +1466,7 @@
       inset: 0;
       z-index: 1000000;
       background: rgba(10, 12, 18, 0.82);
-      backdrop-filter: blur(8px);
+      /* backdrop-filter optimized */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1688,7 +1688,7 @@
 
     <!-- FPS Sniper Mode Indicator Badge -->
     <div id="fps-mode-badge"
-      style="display: none; position: absolute; top: 64px; left: 50%; transform: translateX(-50%); background: rgba(10, 20, 28, 0.85); border: 1.5px solid #00ffaa; color: #00ffaa; font-size: 11px; font-weight: 800; padding: 4px 16px; border-radius: 4px; letter-spacing: 0.12em; box-shadow: 0 0 16px rgba(0, 255, 170, 0.4); backdrop-filter: blur(8px); pointer-events: none;">
+      style="display: none; position: absolute; top: 64px; left: 50%; transform: translateX(-50%); background: rgba(10, 20, 28, 0.85); border: 1.5px solid #00ffaa; color: #00ffaa; font-size: 11px; font-weight: 800; padding: 4px 16px; border-radius: 4px; letter-spacing: 0.12em; box-shadow: 0 0 16px rgba(0, 255, 170, 0.4); /* backdrop-filter optimized */ pointer-events: none;">
       ● FPS TURRET GUNNER &middot; FREE AIM ACTIVE
     </div>
 
@@ -2837,8 +2837,9 @@
         // 1. Resolution / Pixel Ratio
         if (app.renderer) {
           try {
-            app.maxRenderPixelRatio = currentSettings.renderScale;
-            app.renderer.setPixelRatio(currentSettings.renderScale);
+            const safeRatio = Math.min(window.devicePixelRatio || 1, Math.min(1.0, currentSettings.renderScale || 1.0));
+            app.maxRenderPixelRatio = safeRatio;
+            app.renderer.setPixelRatio(safeRatio);
             app.renderer.setSize(window.innerWidth, window.innerHeight);
           } catch(e) {}
         }
