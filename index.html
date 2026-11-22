@@ -1824,6 +1824,14 @@
         if (reloadTimer > 0) return;
         reloadTimer = 0.25;
 
+        // FIRE 3D TANK HIGH-VELOCITY CANNON
+        try {
+          const bs = window._app && window._app.world ? window._app.world.bulletSystem : null;
+          if (bs && typeof bs.handleBurstShot === 'function') {
+            bs.handleBurstShot();
+          }
+        } catch(e) {}
+
         const reloadIndicatorEl = document.querySelector('.tactical-hud__reload-indicator');
         if (reloadIndicatorEl) {
           reloadIndicatorEl.textContent = '● RECHARGING BREECH...';
@@ -2512,6 +2520,21 @@
         // Apply balanced 60 FPS graphics settings
         window.applyAllSettings();
 
+        // Ensure intro auto-shooting is neutralized immediately
+        if (window._app && window._app.intro) {
+          try {
+            window._app.intro.stopIntroShooting?.();
+            if (window._app.intro.introShootTimer) {
+              window._app.intro.introShootTimer.kill?.();
+              window._app.intro.introShootTimer = null;
+            }
+            window._app.intro.state = 'done';
+          } catch(e) {}
+        }
+        if (window._app && window._app.controller) {
+          window._app.controller.inputEnabled = true;
+        }
+
         // Smoothly dismiss loader and open home deck
         dismissLoaderAndShowMenu();
       }
@@ -2569,6 +2592,24 @@
           audio.volume = 0.5;
           audio.play().catch(() => {});
         } catch(e) {}
+
+        // STOP ANY INTRO AUTOPILOT / SHOOTING
+        if (window._app && window._app.intro) {
+          try {
+            window._app.intro.stopIntroShooting?.();
+            if (window._app.intro.introShootTimer) {
+              window._app.intro.introShootTimer.kill?.();
+              window._app.intro.introShootTimer = null;
+            }
+            window._app.intro.state = 'done';
+          } catch(e) {}
+        }
+
+        // PERMANENTLY ENABLE TANK CONTROLS (WASD, MOUSE, TURRET)
+        if (window._app) {
+          if (window._app.controller) window._app.controller.inputEnabled = true;
+          if (window._app.world && window._app.world.controller) window._app.world.controller.inputEnabled = true;
+        }
 
         // UNPAUSE 3D SIMULATION & RESTORE AUDIO
         if (window._app) {
