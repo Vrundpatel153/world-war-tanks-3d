@@ -98,18 +98,7 @@
     </script>
 
   <style>
-    @font-face {
-      font-family: "Crocante";
-      src:
-        url("/assets/fonts/Crocante-Medium.woff2") format("woff2"),
-        url("/assets/fonts/Crocante-Medium.woff") format("woff");
-      font-weight: 400 900;
-      font-style: normal;
-      font-display: swap;
-      ascent-override: 115%;
-      descent-override: 23%;
-      line-gap-override: 0%;
-    }
+
 
     *,
     *::before,
@@ -235,7 +224,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-family: "Crocante", display, sans-serif;
+      font-family: "Rajdhani", "Barlow Condensed", "Trebuchet MS", sans-serif !important; letter-spacing: 0.08em; text-transform: uppercase;
       font-size: 1.6rem;
       font-weight: 800;
       letter-spacing: 0.02em;
@@ -384,7 +373,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
-  <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/Crocante-Medium.woff2" crossorigin="anonymous" />
+  
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet"
     media="print" onload="this.media='all'" />
   <noscript>
@@ -453,7 +442,7 @@
       inset: 0;
       pointer-events: none;
       z-index: 100;
-      font-family: "Barlow", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: "Rajdhani", "Barlow Condensed", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: #ffffff;
       user-select: none;
     }
@@ -774,7 +763,7 @@
       border: 1px solid #272935;
       color: #c7ff72;
       padding: 8px 16px;
-      font-family: "Barlow", sans-serif;
+      font-family: "Rajdhani", "Barlow Condensed", -apple-system, sans-serif;
       font-size: 12px;
       font-weight: 800;
       letter-spacing: 0.08em;
@@ -807,9 +796,10 @@
       background: #11121a;
       border: 1px solid #272935;
       color: #8f93a5;
-      font-family: "Barlow", sans-serif;
-      font-size: 11px;
-      font-weight: 800;
+      font-family: "Rajdhani", "Barlow Condensed", sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       padding: 10px 6px;
@@ -863,10 +853,10 @@
     }
 
     .setting-title {
-      font-family: "Barlow", sans-serif;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.06em;
+      font-family: "Rajdhani", "Barlow Condensed", sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       color: #dfdfe2;
       text-transform: uppercase;
       display: flex;
@@ -901,9 +891,10 @@
       border: 1px solid #272935;
       color: #8f93a5;
       border-radius: 6px;
-      font-family: "Barlow", sans-serif;
-      font-size: 11px;
-      font-weight: 800;
+      font-family: "Rajdhani", "Barlow Condensed", sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       transition: all 0.12s ease;
@@ -954,9 +945,11 @@
     }
 
     .preset-name {
-      font-family: "Crocante", display, sans-serif;
-      font-size: 14px;
-      font-weight: 900;
+      font-family: "Rajdhani", "Barlow Condensed", sans-serif !important;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       letter-spacing: 0.05em;
       color: #ffffff;
     }
@@ -1012,7 +1005,7 @@
       opacity: 1;
       visibility: visible;
       transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
-      font-family: "Barlow", sans-serif;
+      font-family: "Rajdhani", "Barlow Condensed", -apple-system, sans-serif;
       user-select: none;
     }
 
@@ -1048,7 +1041,10 @@
     }
 
     .home-title {
-      font-family: "Crocante", display, sans-serif !important;
+      font-family: "Rajdhani", "Barlow Condensed", "Trebuchet MS", sans-serif !important;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase; letter-spacing: 0.08em; text-transform: uppercase;
       font-size: clamp(40px, 6vw, 72px);
       font-weight: 900;
       letter-spacing: 0.04em;
@@ -1064,7 +1060,7 @@
     }
 
     .home-subtitle {
-      font-family: "Barlow", sans-serif;
+      font-family: "Rajdhani", "Barlow Condensed", -apple-system, sans-serif;
       font-size: clamp(12px, 1.6vw, 15px);
       font-weight: 800;
       letter-spacing: 0.28em;
@@ -1111,12 +1107,17 @@
     /* Primary PLAY Button */
     .btn-home-play {
       width: 100%;
-      padding: 18px 28px;
+      padding: 16px 28px;
       background: #c7ff72;
       color: #11121a;
-      border: 3px solid #11121a;
-      border-radius: 8px;
-      font-family: "Crocante", display, sans-serif !important;
+      border: 2px solid #c7ff72;
+      border-radius: 6px;
+      font-family: "Rajdhani", "Barlow Condensed", sans-serif !important;
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-family: "Rajdhani", "Barlow Condensed", "Trebuchet MS", sans-serif !important; letter-spacing: 0.08em; text-transform: uppercase;
       font-size: 26px;
       font-weight: 900;
       letter-spacing: 0.06em;
@@ -1149,7 +1150,7 @@
       color: #dfdfe2;
       border: 2px solid #272935;
       border-radius: 8px;
-      font-family: "Barlow", sans-serif;
+      font-family: "Rajdhani", "Barlow Condensed", -apple-system, sans-serif;
       font-size: 13px;
       font-weight: 800;
       letter-spacing: 0.12em;
@@ -1200,9 +1201,10 @@
       background: rgba(25, 27, 36, 0.85);
       border: 1px solid #272935;
       color: #dfdfe2;
-      font-family: "Barlow", sans-serif;
-      font-size: 11px;
-      font-weight: 800;
+      font-family: "Rajdhani", "Barlow Condensed", sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       letter-spacing: 0.12em;
       padding: 8px 14px;
       border-radius: 6px;
@@ -1252,7 +1254,7 @@
       flex-direction: column;
       gap: 20px;
       color: #dfdfe2;
-      font-family: "Barlow", sans-serif;
+      font-family: "Rajdhani", "Barlow Condensed", -apple-system, sans-serif;
       box-sizing: border-box;
       scrollbar-width: thin;
       scrollbar-color: #272935 #11121a;
@@ -1282,7 +1284,7 @@
     }
 
     .menu-modal-title {
-      font-family: "Crocante", display, sans-serif;
+      font-family: "Rajdhani", "Barlow Condensed", "Trebuchet MS", sans-serif !important; letter-spacing: 0.08em; text-transform: uppercase;
       font-size: 22px;
       letter-spacing: 0.04em;
       color: #c7ff72;
@@ -1313,7 +1315,7 @@
 
     .modal-controls-grid strong {
       color: #c7ff72;
-      font-family: "Barlow", sans-serif;
+      font-family: "Rajdhani", "Barlow Condensed", -apple-system, sans-serif;
       font-weight: 800;
       letter-spacing: 0.06em;
     }
@@ -1336,11 +1338,15 @@
 
     </style>
 
+  <!-- Military & Tactical AAA Game Typography (Rajdhani, Barlow Condensed, Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Rajdhani:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 
 <body>
   <div class="js-fonts-loader fonts-loader">
-    <div class="font crocante" data-font="800 20px Crocante">&nbsp;</div>
+    <div class="font rajdhani" data-font="700 20px Rajdhani">&nbsp;</div>
     <div class="font barlow" data-font="400 20px Barlow">&nbsp;</div>
   </div>
   <div id="startup-intro" class="startup-intro" data-state="LOADING">
@@ -1457,7 +1463,7 @@
       <span>SECTOR: COMBAT ZONE ALPHA</span>
       <span style="color: #00ffaa;">● ONLINE</span>
     
-      <div id="live-fps-badge" style="display: none;">⚡ <span id="live-fps-val">60</span> FPS</div></div>
+      <div id="live-fps-badge" style="display: none;">FPS: <span id="live-fps-val">60</span></div></div>
 
     <!-- Bottom Left Status Widget -->
     <div class="tank-status-panel">
@@ -1760,7 +1766,7 @@
   </script>
 
     <!-- In-Game Return to Menu Button -->
-    <button id="btn-return-menu" onclick="window.openGameMenu()">⚙ MENU [ESC]</button>
+    <button id="btn-return-menu" onclick="window.openGameMenu()">MENU [ESC]</button>
 
     <!-- World War Tanks: Authentic Video Game Home Screen -->
     <div id="game-home-screen">
@@ -1788,13 +1794,13 @@
             <span id="btn-home-play-txt">▶ PLAY</span>
           </button>
           <button class="btn-home-secondary" onclick="window.openMenuModal('modal-controls')">
-            <span>🎮 CONTROLS MANUAL</span>
+            <span>CONTROLS MANUAL</span>
           </button>
           <button class="btn-home-secondary" onclick="window.openMenuModal('modal-options')">
-            <span>⚙ OPTIONS &amp; SETTINGS</span>
+            <span>OPTIONS &amp; SETTINGS</span>
           </button>
           <button id="btn-home-audio" class="btn-home-secondary" onclick="window.toggleMenuAudio()">
-            <span id="txt-home-audio">🔊 AUDIO: SFX ON</span>
+            <span id="txt-home-audio">AUDIO: SFX ON</span>
           </button>
         </div>
       </div>
@@ -1819,7 +1825,7 @@
       <div class="menu-modal" style="max-width: 680px; max-height: 85vh; overflow-y: auto;">
         <div class="menu-modal-header">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="color: #c7ff72; font-size: 20px;">⚙</span>
+            
             <h2 class="menu-modal-title">GAME OPTIONS &amp; SETTINGS</h2>
           </div>
           <button class="menu-modal-close" onclick="window.closeMenuModal('modal-options')">&times;</button>
@@ -1827,10 +1833,10 @@
 
         <!-- Navigation Tabs -->
         <div class="settings-tabs-bar">
-          <button id="tabbtn-graphics" class="settings-tab-btn active" onclick="window.switchSettingsTab('tab-graphics')">⚡ GRAPHICS &amp; VISUALS</button>
-          <button id="tabbtn-controls" class="settings-tab-btn" onclick="window.switchSettingsTab('tab-controls')">🎮 CONTROLS &amp; CAMERA</button>
-          <button id="tabbtn-audio" class="settings-tab-btn" onclick="window.switchSettingsTab('tab-audio')">🔊 AUDIO</button>
-          <button id="tabbtn-intel" class="settings-tab-btn" onclick="window.switchSettingsTab('tab-intel')">🗺️ SECTOR INTEL</button>
+          <button id="tabbtn-graphics" class="settings-tab-btn active" onclick="window.switchSettingsTab('tab-graphics')">GRAPHICS &amp; VISUALS</button>
+          <button id="tabbtn-controls" class="settings-tab-btn" onclick="window.switchSettingsTab('tab-controls')">CONTROLS &amp; CAMERA</button>
+          <button id="tabbtn-audio" class="settings-tab-btn" onclick="window.switchSettingsTab('tab-audio')">AUDIO</button>
+          <button id="tabbtn-intel" class="settings-tab-btn" onclick="window.switchSettingsTab('tab-intel')">SECTOR INTEL</button>
         </div>
 
         <!-- TAB 1: GRAPHICS & VISUALS -->
@@ -1838,7 +1844,7 @@
           <!-- 1-Click Master Presets -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">🔥 GRAPHICS PRESET (1-CLICK OPTIMIZATION)</span>
+              <span class="setting-title">GRAPHICS PRESET (OPTIMIZATION)</span>
               <span id="txt-preset-val" class="setting-current-val">ULTRA</span>
             </div>
             <p class="setting-desc">Instantly configures resolution scaling, shadow maps, and visual post-processing for your hardware.</p>
@@ -1865,7 +1871,7 @@
           <!-- Resolution Scaling (DPI) -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">🖥️ RENDER RESOLUTION SCALE (DPI)</span>
+              <span class="setting-title">RENDER RESOLUTION SCALE (DPI)</span>
               <span id="txt-scale-val" class="setting-current-val">1.25x (HIGH RES)</span>
             </div>
             <p class="setting-desc">Adjusts internal rendering pixel density. Lower for smooth 60 FPS on laptops, higher for crystal clarity.</p>
@@ -1880,7 +1886,7 @@
           <!-- Dynamic Shadows -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">🌓 REAL-TIME SHADOW MAPS</span>
+              <span class="setting-title">SHADOW QUALITY (DYNAMIC MAPS)</span>
               <span id="txt-shadow-val" class="setting-current-val">ULTRA (2048px)</span>
             </div>
             <p class="setting-desc">Calculates high-definition directional sunlight casting and tank track shadows.</p>
@@ -1895,7 +1901,7 @@
           <!-- Bloom & Glow -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">✨ BLOOM &amp; HDR LIGHT GLOW</span>
+              <span class="setting-title">BLOOM &amp; LIGHT GLOW</span>
               <span id="txt-bloom-val" class="setting-current-val">VIBRANT (0.6)</span>
             </div>
             <p class="setting-desc">Enhances muzzle flash intensity, tank headlamp optics, and ambient atmospheric haze.</p>
@@ -1910,7 +1916,7 @@
           <!-- Chromatic Aberration -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">🎯 CHROMATIC LENS ABERRATION</span>
+              <span class="setting-title">CHROMATIC LENS ABERRATION</span>
               <span id="txt-chroma-val" class="setting-current-val">MILD (0.0015)</span>
             </div>
             <p class="setting-desc">Simulates physical optical dispersion across wide focal lengths and high-speed maneuvers.</p>
@@ -1924,7 +1930,7 @@
           <!-- Anisotropic Texture Filtering -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">🔍 ANISOTROPIC TEXTURE FILTERING</span>
+              <span class="setting-title">ANISOTROPIC TEXTURE FILTERING</span>
               <span id="txt-aniso-val" class="setting-current-val">16x ULTRA</span>
             </div>
             <p class="setting-desc">Preserves crisp road asphalt, rock surfaces, and terrain details at oblique camera angles.</p>
@@ -1939,7 +1945,7 @@
           <!-- Live In-Game FPS Counter -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">📊 LIVE IN-GAME FPS COUNTER</span>
+              <span class="setting-title">LIVE IN-GAME FPS COUNTER</span>
               <span id="txt-fps-val" class="setting-current-val">ENABLED</span>
             </div>
             <p class="setting-desc">Renders real-time hardware telemetry and frame pacing badge on the upper tactical HUD.</p>
@@ -1955,7 +1961,7 @@
           <!-- Mouse Sensitivity -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">🖱️ MOUSE TURRET &amp; LOOK SENSITIVITY</span>
+              <span class="setting-title">MOUSE LOOK SENSITIVITY</span>
               <span id="txt-sens-val" class="setting-current-val">1.0x (DEFAULT)</span>
             </div>
             <p class="setting-desc">Tunes mouse yaw/pitch camera orbit rate and fine optical aiming response.</p>
@@ -1970,7 +1976,7 @@
           <!-- Invert Mouse Pitch -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">🔄 INVERT VERTICAL CAMERA (Y-AXIS)</span>
+              <span class="setting-title">INVERT VERTICAL LOOK (Y-AXIS)</span>
               <span id="txt-invert-val" class="setting-current-val">OFF</span>
             </div>
             <p class="setting-desc">Inverts pitch when moving the mouse up and down (flight simulator style).</p>
@@ -1983,11 +1989,11 @@
           <!-- Display Mode -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">🖥️ DISPLAY MODE</span>
+              <span class="setting-title">DISPLAY MODE</span>
               <span class="setting-current-val">WINDOWED / FULLSCREEN</span>
             </div>
             <div class="opt-btn-group">
-              <button class="opt-btn" onclick="window.toggleFullscreen()">⛶ TOGGLE FULLSCREEN [F11]</button>
+              <button class="opt-btn" onclick="window.toggleFullscreen()">TOGGLE FULLSCREEN [F11]</button>
             </div>
           </div>
         </div>
@@ -1997,20 +2003,20 @@
           <!-- Master SFX Toggle -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">🔊 SOUND EFFECTS (SFX)</span>
+              <span class="setting-title">SOUND EFFECTS (SFX)</span>
               <span id="opt-txt-audio" class="setting-current-val">ENABLED</span>
             </div>
             <p class="setting-desc">Toggles tank diesel engine roar, 88mm cannon breech firing, track suspension clatter, and UI sounds.</p>
             <div class="opt-btn-group">
-              <button class="opt-btn active" id="btn-audio-on" onclick="window.setAudioMuted(false)">🔊 SFX ENABLED</button>
-              <button class="opt-btn" id="btn-audio-off" onclick="window.setAudioMuted(true)">🔇 MUTED</button>
+              <button class="opt-btn active" id="btn-audio-on" onclick="window.setAudioMuted(false)">SFX ENABLED</button>
+              <button class="opt-btn" id="btn-audio-off" onclick="window.setAudioMuted(true)">SFX MUTED</button>
             </div>
           </div>
 
           <!-- Volume Slider -->
           <div class="setting-row">
             <div class="setting-label-row">
-              <span class="setting-title">🎚️ MASTER AUDIO VOLUME</span>
+              <span class="setting-title">MASTER AUDIO VOLUME</span>
               <span id="txt-vol-val" class="setting-current-val">100%</span>
             </div>
             <input id="slider-volume" type="range" min="0" max="100" value="100" class="setting-slider" oninput="window.setMasterVolume(this.value)" />
@@ -2226,7 +2232,7 @@
         const playBtnTxt = document.querySelector('#btn-home-play-txt');
         if (playBtnTxt) playBtnTxt.textContent = '▶ RESUME BATTLE';
         const badge = document.querySelector('.home-badge');
-        if (badge) badge.textContent = '• ⏸️ COMBAT SIMULATION PAUSED •';
+        if (badge) badge.textContent = '• COMBAT SIMULATION PAUSED •';
 
         const btnReturn = document.getElementById('btn-return-menu');
         if (btnReturn) btnReturn.style.display = 'none';
