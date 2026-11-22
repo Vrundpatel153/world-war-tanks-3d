@@ -2413,14 +2413,15 @@
         preset: 'med',
         renderScale: 1.0,
         shadowQuality: 'med',
-        bloomStrength: 0.25,
+        bloomStrength: 0.0,
         chromaticAberration: 0.0,
         anisotropy: 4,
         showFps: true,
         mouseSens: 1.0,
         invertY: false,
         audioMuted: false,
-        masterVolume: 100
+        masterVolume: 100,
+        v60fps: true
       };
 
       let currentSettings = { ...defaultSettings };
@@ -2428,9 +2429,9 @@
         const saved = localStorage.getItem(SETTINGS_STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (parsed && parsed.preset === 'ultra') {
-            // Upgrade legacy lagging ultra to 60 FPS balanced preset
-            currentSettings = { ...defaultSettings };
+          if (!parsed || !parsed.v60fps || parsed.bloomStrength > 0.05 || parsed.preset === 'ultra') {
+            // Auto-upgrade legacy sessions to 100% smooth locked 60 FPS HD profile
+            currentSettings = { ...defaultSettings, v60fps: true };
             localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(currentSettings));
           } else {
             currentSettings = { ...defaultSettings, ...parsed };
@@ -2609,6 +2610,10 @@
         if (cam) {
           cam._targetOrbitPitch = 0.16;
           cam._targetOrbitDistance = 7.0;
+        }
+        const canvas = document.querySelector('#webgl');
+        if (canvas && !document.pointerLockElement) {
+          try { canvas.requestPointerLock(); } catch(e) {}
         }
       };
 

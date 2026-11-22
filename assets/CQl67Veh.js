@@ -136,7 +136,7 @@ this.instance.updateMatrixWorld(!0),this.updateOptimalArea()})}initZoom(){this.z
                     dy = Math.sign(dy) * Math.min(Math.abs(dy), 30);
                 }
             }
-            const sens = (isAimActive ? 0.0042 : 0.0058) * (window.gameMouseSensMultiplier || 1.0);
+            const sens = (isAimActive ? 0.0050 : 0.0068) * (window.gameMouseSensMultiplier || 1.0);
             const effDy = (window.gameInvertY ? -1 : 1) * dy;
             this._targetOrbitYaw -= dx * sens;
             this._targetOrbitPitch += effDy * sens;
@@ -186,7 +186,7 @@ this.instance.updateMatrixWorld(!0),this.updateOptimalArea()})}initZoom(){this.z
         this._targetOrbitDistance = 6.4;
     }
 
-    let damp = 1 - Math.exp(-85 * e);
+    let damp = 1 - Math.exp(-140 * e);
     this._orbitYaw += (this._targetOrbitYaw - this._orbitYaw) * damp;
     this._orbitPitch += (this._targetOrbitPitch - this._orbitPitch) * damp;
     this._orbitDistance += (this._targetOrbitDistance - this._orbitDistance) * damp;
