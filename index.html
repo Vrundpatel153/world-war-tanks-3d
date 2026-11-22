@@ -129,12 +129,14 @@
     }
 
     #webgl {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      z-index: 1;
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      z-index: 1 !important;
       touch-action: none;
     }
 
@@ -1649,7 +1651,7 @@
 
 
 
-      <section aria-label="Core Technology">
+      <section class="u-visually-hidden" aria-label="Core Technology">
         <h2>Core Technology Stack & Principles</h2>
         <p>Engineered with Three.js, Rapier 3D physics, procedural track dynamics, and WebGL rendering.</p>
       </section>
@@ -2314,6 +2316,36 @@
               <button class="opt-btn" onclick="window.toggleFullscreen()">TOGGLE FULLSCREEN [F11]</button>
             </div>
           </div>
+
+          <!-- Keybindings & Combat Operations Field Manual -->
+          <div class="setting-row">
+            <div class="setting-label-row">
+              <span class="setting-title">FIELD MANUAL &amp; KEYBOARD BINDINGS</span>
+              <span class="setting-current-val">STANDARD PROTOCOL</span>
+            </div>
+            <div style="margin-top: 10px; display: grid; grid-template-columns: 140px 1fr; gap: 8px 16px; background: rgba(0,0,0,0.3); padding: 14px; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; font-size: 13px;">
+              <span style="color: #00ffaa; font-weight: 700;">W / A / S / D</span>
+              <span style="color: #c9cdd4;">Drive Caterpillar Treads (Forward, Steer Left, Reverse, Steer Right)</span>
+
+              <span style="color: #00ffaa; font-weight: 700;">MOUSE MOVE</span>
+              <span style="color: #c9cdd4;">360&deg; Commander View &amp; Turret Traversal</span>
+
+              <span style="color: #00ffaa; font-weight: 700;">HOLD RIGHT-CLICK</span>
+              <span style="color: #c9cdd4;">High-Precision Optical Aim (Aligns Cannon)</span>
+
+              <span style="color: #00ffaa; font-weight: 700;">LEFT-CLICK</span>
+              <span style="color: #c9cdd4;">Fire 88mm KwK High-Velocity Cannon</span>
+
+              <span style="color: #00ffaa; font-weight: 700;">Q / E KEYS</span>
+              <span style="color: #c9cdd4;">Manual Turret Slew Override</span>
+
+              <span style="color: #00ffaa; font-weight: 700;">LEFT SHIFT</span>
+              <span style="color: #c9cdd4;">Engage Turbo Boost Turbine</span>
+
+              <span style="color: #00ffaa; font-weight: 700;">ESC KEY</span>
+              <span style="color: #c9cdd4;">Pause Combat Simulation &amp; Access Tactical Command Deck</span>
+            </div>
+          </div>
         </div>
 
         <!-- TAB 3: AUDIO -->
@@ -2454,22 +2486,63 @@
         }
       }
 
-      // Check when 3D engine is initialized, then dismiss loader & apply settings
-      let _loaderCheckInterval = setInterval(function() {
-        if (window._app && window._app.world && window._app.world.camera) {
-          clearInterval(_loaderCheckInterval);
-          setTimeout(dismissLoaderAndShowMenu, 350);
-          window.applyAllSettings();
-        }
-      }, 100);
+      // PROPER ROBUST ENGINE LIFECYCLE COORDINATOR
+      function isEngineFullyReady() {
+        const app = window._app;
+        if (!app) return false;
+        if (app.startup && !app.startup.isReady) return false;
+        if (!app.world || !app.world.robot || !app.world.camera) return false;
+        const info = app.renderer ? app.renderer.info : null;
+        if (!info || info.render.calls === 0) return false;
+        return true;
+      }
 
-      setTimeout(function() {
+      function onEngineReady() {
+        if (window._hasEngineInitialized) return;
+        window._hasEngineInitialized = true;
         clearInterval(_loaderCheckInterval);
+
+        // Ensure WebGL Canvas is 100% visible
+        const canvas = document.querySelector('#webgl');
+        if (canvas) {
+          canvas.style.opacity = '1';
+          canvas.style.visibility = 'visible';
+        }
+
+        // Apply balanced 60 FPS graphics settings
+        window.applyAllSettings();
+
+        // Smoothly dismiss loader and open home deck
         dismissLoaderAndShowMenu();
-      }, 2200);
+      }
+
+      let _loaderCheckInterval = setInterval(function() {
+        if (isEngineFullyReady()) {
+          onEngineReady();
+        }
+      }, 60);
+
+      // Safe timeout (10 seconds) ensuring engine has plenty of time for shaders
+      setTimeout(function() {
+        if (!window._hasEngineInitialized && window._app && window._app.world) {
+          onEngineReady();
+        }
+      }, 10000);
 
       // GAME PAUSE & RESUME MECHANISM
       window.startGameFromMenu = function() {
+        if (!isEngineFullyReady()) {
+          const playTxt = document.querySelector('#btn-deck-play-txt');
+          if (playTxt) playTxt.textContent = 'INITIALIZING BATTLEFIELD...';
+          const waitTimer = setInterval(() => {
+            if (isEngineFullyReady()) {
+              clearInterval(waitTimer);
+              window.startGameFromMenu();
+            }
+          }, 80);
+          return;
+        }
+
         window.isGameMenuOpen = false;
         window._hasStartedGame = true;
         const playBtnTxt = document.querySelector('#btn-deck-play-txt');
@@ -2575,6 +2648,12 @@
 
       // Modal management
       window.openMenuModal = function(modalId) {
+        if (modalId === 'modal-controls') {
+          modalId = 'modal-options';
+          window.switchSettingsTab('tab-controls');
+        } else if (modalId === 'modal-options') {
+          window.switchSettingsTab('tab-graphics');
+        }
         const modal = document.getElementById(modalId);
         if (modal) modal.classList.add('active');
       };
